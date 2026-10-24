@@ -215,7 +215,7 @@
   // ---------- living photos: wherever one of her animated photos appears, the loop fades in over it ----------
   (() => {
     if (quiet) return;
-    const pics = $$('img').filter((im) => liveSrc(im.getAttribute('src')) && !im.closest('.stories, .nav, .stories__top'));
+    const pics = $$('img').filter((im) => liveSrc(im.getAttribute('src')) && !im.closest('.stories, .nav, .stories__top, .insta'));
     const start = (v) => {
       if (document.hidden) return;
       if (!v.src) v.src = v.dataset.src;
@@ -282,6 +282,36 @@
         if (visible.has(v)) start(v);
       }).observe(im, { attributes: true, attributeFilter: ['src'] });
     });
+  })();
+
+
+  // ---------- Instagram phones: the post plays when seen, a heart pops now and then ----------
+  (() => {
+    const sec = $('[data-insta]');
+    if (!sec) return;
+    const v = $('[data-ig-video]', sec), pop = $('.ig__pop', sec), heart = $('[data-ig-heart]', sec);
+    let on = false, timer = 0;
+    const like = () => {
+      pop.classList.remove('is-pop'); void pop.offsetWidth; pop.classList.add('is-pop');
+      heart.classList.remove('is-liked'); void heart.offsetWidth; heart.classList.add('is-liked');
+    };
+    new IntersectionObserver((en) => {
+      on = en[0].isIntersecting;
+      if (on && !quiet) {
+        if (v && !v.src) { v.src = v.dataset.src; v.addEventListener('playing', () => v.classList.add('is-on'), { once: true }); }
+        if (v) v.play().catch(() => {});
+        clearInterval(timer); setTimeout(like, 1600); timer = setInterval(like, 6500);
+      } else { if (v) v.pause(); clearInterval(timer); }
+    }, { threshold: 0.3 }).observe(sec);
+    // the phones lean towards the pointer
+    if (!reduce && fine) {
+      const phones = $$('[data-phone]', sec);
+      sec.addEventListener('pointermove', (e) => {
+        const r = sec.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+        phones.forEach((p, i) => { p.style.transform = `rotateY(${(i ? -16 : 16) + x * 14}deg) rotateX(${y * -8}deg) rotateZ(${i ? 3 : -3}deg)`; });
+      });
+      sec.addEventListener('pointerleave', () => phones.forEach((p) => { p.style.transform = ''; }));
+    }
   })();
 
   // ---------- the names band speeds up with the scroll ----------

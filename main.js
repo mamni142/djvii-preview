@@ -282,7 +282,7 @@ const screen = (() => {
   const deck = $('[data-deck]'), body = $('[data-deck-body]'), vinyl = $('[data-platter]'), disc = $('[data-record]');
   const player = $('[data-player]'), embed = $('[data-pl-embed]');
   const titleEl = $('[data-pl-title]'), subEl = $('[data-pl-sub]'), prog = $('[data-pl-progress]');
-  const posEl = $('[data-pl-pos]'), durEl = $('[data-pl-dur]'), labelImg = $('.tt__label img', deck);
+  const posEl = $('[data-pl-pos]'), durEl = $('[data-pl-dur]'), labelImg = null;
   const mini = $('[data-mini]'), miniTitle = $('[data-mini-title]'), miniK = $('[data-mini-k]'), miniArt = $('[data-mini-art]'), miniProg = $('[data-mini-progress]');
   const SC = 'https://soundcloud.com/victoria-graham-554728684';
   let widget = null, loading = null, playing = false, sounds = [], duration = 0, wantPlay = false;
@@ -332,7 +332,6 @@ const screen = (() => {
     playing = v; if (v) spinUp();
     deck.classList.toggle('is-playing', v); player.classList.toggle('is-playing', v);
     $('[data-pl-toggle]').setAttribute('aria-label', v ? 'Pause' : 'Play');
-    $('[data-deck-start]').textContent = v ? 'Stop' : 'Start';
     mini.classList.toggle('is-playing', v);
     $$('[data-mini-play]').forEach((b) => b.setAttribute('aria-label', v ? 'Pause' : 'Play'));
     miniK.textContent = v ? 'Now playing' : (widget && miniTitle.dataset.started ? 'Paused' : 'Tap to play');
@@ -346,7 +345,7 @@ const screen = (() => {
       duration = s.duration || 0; durEl.textContent = duration ? fmt(duration) : '—';
       const i = sounds.findIndex((x) => x.id === s.id);
       subEl.textContent = sounds.length ? `Mix ${i + 1} of ${sounds.length} · ${s.playback_count ? s.playback_count.toLocaleString('en') + ' plays' : 'SoundCloud'}` : 'SoundCloud';
-      if (s.artwork_url) { labelImg.src = s.artwork_url.replace('-large', '-t500x500'); miniArt.src = s.artwork_url; }
+      if (s.artwork_url) miniArt.src = s.artwork_url;
     });
   };
   const load = () => loading || (loading = new Promise((res) => {

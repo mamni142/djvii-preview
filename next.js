@@ -387,6 +387,13 @@
     $$('section, footer').filter((s) => !s.parentElement.closest('section')).forEach((s) => io.observe(s));
   })();
 
+  // ---------- the maker's signature writes itself when it comes into view ----------
+  (() => {
+    const s = $('[data-sign]');
+    if (!s) return;
+    new IntersectionObserver((en, io) => { if (en[0].isIntersecting) { s.classList.add('is-signed'); io.disconnect(); } }, { threshold: 0.6 }).observe(s);
+  })();
+
   // ---------- the names band speeds up with the scroll ----------
   (() => {
     const track = $('.marquee__track');

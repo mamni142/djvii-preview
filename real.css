@@ -870,3 +870,8 @@
 .send__note.is-warn { color: #f0b48a; }
 [data-send-mail].is-busy { opacity: .7; pointer-events: none; }
 [data-send-mail].is-sent { border-color: transparent; background: linear-gradient(rgba(20,17,14,.6), rgba(20,17,14,.6)) padding-box, linear-gradient(120deg, #fff3d8, #a07a44 45%, #e9cf9c 75%, #8a6c40) border-box; color: #f6e2bb; }
+
+/* Safari: a round platter and a round label shadow. The deck is 1.2 wide per 1 high, so a platter 61% wide is 73.2% of its height */
+.tt__platter { aspect-ratio: auto; height: 73.2%; }
+.tt__label { box-shadow: none; filter: drop-shadow(0 0 1.5px rgba(0,0,0,0.65)); }
+@supports not (aspect-ratio: 1) { .tt__body { height: 0; padding-bottom: 83.333%; } }

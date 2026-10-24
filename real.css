@@ -574,3 +574,40 @@
 @media (prefers-reduced-motion: reduce) { .step.is-active, .step.is-active .opts--photo label { animation: none; } }
 .planner { grid-template-rows: auto 1fr; }
 @media (max-width: 1100px) { .planner { grid-template-rows: none; } }
+
+/* ===== occasion menu, card edition: number, name, a note set to the right; gold only for the chosen one ===== */
+.opts--photo { border-top: 1px solid rgba(246,223,179,0.14); }
+.opts--photo span { grid-template-columns: 52px 1fr auto; grid-template-rows: auto; column-gap: 18px; row-gap: 0; height: 78px; padding: 0 6px 0 2px; background: none; }
+.opts--photo span::before { grid-area: 1 / 1; align-self: center; content: counter(occ, decimal-leading-zero); width: auto; height: auto; margin: 0; border-radius: 0; background: none; box-shadow: none;
+  font-family: var(--display); font-size: 17px; font-weight: 400; font-style: italic; letter-spacing: 0.04em; color: rgba(226,196,143,0.45); }
+.opts--photo b { grid-area: 1 / 2; align-self: center; font-size: clamp(26px, 2.3vw, 34px); color: rgba(246,236,219,0.62); transition: color .5s, letter-spacing .7s var(--ease); }
+.opts--photo small { grid-area: 1 / 3; align-self: center; justify-self: end; text-align: right; font-family: var(--display); font-size: 16px; font-style: italic; font-weight: 400; letter-spacing: 0;
+  color: rgba(243,233,216,0.32); transition: color .5s, transform .7s var(--ease); }
+.opts--photo img { display: none; }
+.opts--photo span::after { bottom: -1px; width: 0; background: linear-gradient(90deg, rgba(246,223,179,0) 0%, #f3dcae 18%, #c9a46a 60%, rgba(246,223,179,0) 100%); box-shadow: 0 0 12px rgba(246,223,179,0.45); transition: width 1s var(--ease), opacity .5s; }
+
+/* chosen: everything on the line turns to gold */
+.opts--photo input:checked + span { background: none; }
+.opts--photo input:checked + span::before { content: counter(occ, decimal-leading-zero); width: auto; height: auto; margin: 0; background: none; box-shadow: none; color: #f0d9aa; }
+.opts--photo input:checked + span b { font-style: italic; background: linear-gradient(180deg, #fff6e2, #e2bd84); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.opts--photo input:checked + span small { color: #d9bd8a; }
+.opts--photo input:checked + span::after { width: 100%; }
+
+/* pointer: just brighter, no gold, so only one line ever looks chosen */
+@media (hover: hover) {
+  .opts--photo label:hover span, .opts--photo label:hover input:checked + span { background: none; }
+  .opts--photo label:hover b { color: #fffaf0; letter-spacing: 0.005em; }
+  .opts--photo label:hover small { color: rgba(243,233,216,0.6); transform: translateX(-4px); }
+  .opts--photo label:hover span::after { width: 0; }
+  .opts--photo label:hover input:checked + span::after { width: 100%; }
+  .opts--photo label:hover input:checked + span b { color: transparent; }
+}
+
+/* phones: the note goes under the name and a small arched portrait closes the line */
+@media (max-width: 720px) {
+  .opts--photo span { grid-template-columns: 34px 1fr 40px; grid-template-rows: auto auto; row-gap: 4px; column-gap: 12px; height: auto; padding: 13px 4px 13px 0; }
+  .opts--photo span::before { grid-area: 1 / 1 / 3 / 2; font-size: 15px; }
+  .opts--photo b { grid-area: 1 / 2; align-self: end; font-size: 25px; }
+  .opts--photo small { grid-area: 2 / 2; justify-self: start; text-align: left; font-size: 14px; }
+  .opts--photo img { display: block; grid-area: 1 / 3 / 3 / 4; width: 38px; height: 48px; }
+}

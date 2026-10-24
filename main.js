@@ -541,8 +541,8 @@ const screen = (() => {
       if (lastType) fadeTo(t.img); else ui.img.src = t.img;
       ui.title.textContent = t.title; ui.like.textContent = t.like;
       if (lastType && !reduce) [ui.title, ui.like].forEach((el) => el.animate([{ opacity: 0, filter: 'blur(6px)', transform: 'translateY(8px)' }, { opacity: 1, filter: 'blur(0)', transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' }));
-      const radios = $$('input[name="type"]', form), n = radios.findIndex((r) => r.value === type) + 1;
-      setTag(`<i>${String(n).padStart(2, '0')}</i>${esc(t.title)}`);
+      const pick = $$('input[name="type"]', form).find((r) => r.value === type);
+      if (pick) setTag(`<i>${String($$('input[name="type"]', form).indexOf(pick) + 1).padStart(2, '0')}</i>${esc($('b', pick.closest('label')).textContent)}`);
       lastType = type;
     }
     const people = lesson ? (g <= 10 ? 'private lesson' : `${g} students`) : `${g >= 500 ? '500+' : g} guests`;
@@ -582,7 +582,7 @@ const screen = (() => {
   // the arch previews an occasion while the pointer rests on it, and returns to the chosen one after
   const occ = $('.opts--photo', form);
   const showImg = fadeTo;
-  const tagFor = (input) => { const n = $$('input[name="type"]', form).indexOf(input) + 1; return `<i>${String(n).padStart(2, '0')}</i>${esc(T[input.value].title)}`; };
+  const tagFor = (input) => { const n = $$('input[name="type"]', form).indexOf(input) + 1; return `<i>${String(n).padStart(2, '0')}</i>${esc($('b', input.closest('label')).textContent)}`; };
   occ.addEventListener('pointerover', (e) => { const l = e.target.closest('label'); if (!l || e.pointerType !== 'mouse') return; showImg($('img', l).getAttribute('src')); setTag(tagFor($('input', l))); });
   occ.addEventListener('pointerleave', () => { const c = $('input[name="type"]:checked', form); if (!c) return; showImg(T[c.value].img); setTag(tagFor(c)); });
   // choosing an occasion moves straight on to the music

@@ -319,7 +319,15 @@ const screen = (() => {
   new IntersectionObserver((en, io) => { if (en[0].isIntersecting) { if (!playing) vel = 520; spinUp(); io.disconnect(); } }, { threshold: 0.5 }).observe(deck);
 
   const fmt = (ms) => { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`; };
-  const clean = (t) => (t || '').replace(/^\s*DJ\s*VII\s*TORIA\s*[-–|:]\s*/i, '').trim();
+  const clean = (t) => (t || '').replace(/^\s*DJ\s*VII\s*TORIA\s*[-–|:]\s*/i, '').replace(/Lastest/g, 'Latest').replace(/\s*\|\s*/g, ' · ').trim();
+  // the bar's title rolls like a ticker when it does not fit
+  const setMiniTitle = (txt) => {
+    if (miniTitle.dataset.t === txt) return;
+    miniTitle.dataset.t = txt;
+    miniTitle.innerHTML = `<span></span>`; miniTitle.firstChild.textContent = txt;
+    miniTitle.classList.remove('is-long', 'is-swap'); void miniTitle.offsetWidth; miniTitle.classList.add('is-swap');
+    if (miniTitle.firstChild.offsetWidth > miniTitle.clientWidth + 4) { miniTitle.innerHTML = `<span></span><span></span>`; miniTitle.children[0].textContent = txt; miniTitle.children[1].textContent = txt; miniTitle.classList.add('is-long'); }
+  };
   const setState = (v) => {
     playing = v; if (v) spinUp();
     deck.classList.toggle('is-playing', v); player.classList.toggle('is-playing', v);
@@ -327,13 +335,14 @@ const screen = (() => {
     $('[data-deck-start]').textContent = v ? 'Stop' : 'Start';
     mini.classList.toggle('is-playing', v);
     $$('[data-mini-play]').forEach((b) => b.setAttribute('aria-label', v ? 'Pause' : 'Play'));
-    miniK.textContent = v ? 'Now playing' : (widget ? 'Paused' : 'Tap anywhere for music');
+    miniK.textContent = v ? 'Now playing' : (widget && miniTitle.dataset.started ? 'Paused' : 'Tap to play');
+    if (v) miniTitle.dataset.started = '1';
   };
   const showSound = () => {
     if (!widget) return;
     widget.getCurrentSound((s) => {
       if (!s) return;
-      titleEl.textContent = clean(s.title); miniTitle.textContent = clean(s.title);
+      titleEl.textContent = clean(s.title); setMiniTitle(clean(s.title));
       duration = s.duration || 0; durEl.textContent = duration ? fmt(duration) : '—';
       const i = sounds.findIndex((x) => x.id === s.id);
       subEl.textContent = sounds.length ? `Mix ${i + 1} of ${sounds.length} · ${s.playback_count ? s.playback_count.toLocaleString('en') + ' plays' : 'SoundCloud'}` : 'SoundCloud';
@@ -396,7 +405,7 @@ const screen = (() => {
   const stop = () => { removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); };
   addEventListener('pointerdown', first, true);
   addEventListener('keydown', first, true);
-  if (soundOff) miniK.textContent = 'Paused';
+  if (soundOff) miniK.textContent = 'Press play';
   // the player loads quietly in the background so the first tap starts the music at once
   setTimeout(showBar, document.documentElement.classList.contains('is-loading') ? 2300 : 1200);
   addEventListener('load', () => setTimeout(load, 600));

@@ -860,3 +860,7 @@
 
 /* sections out of view hold their animations still */
 .is-away *, .is-away *::before, .is-away *::after { animation-play-state: paused !important; }
+
+/* the slow gold animations repaint about 27 times a second instead of 60: the motion is too slow to tell the difference */
+.hero__portrait, .hero__side, .ticket__photo { animation-timing-function: steps(240) !important; }
+.hero__word { animation-timing-function: steps(210) !important; }

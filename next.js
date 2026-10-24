@@ -235,8 +235,11 @@
     const io = new IntersectionObserver((entries) => entries.forEach((e) => {
       const v = e.target._live;
       if (!v) return;
-      if (e.isIntersecting) { visible.add(v); start(v); } else { visible.delete(v); v.pause(); }
-    }), { rootMargin: '60px 0px', threshold: 0.15 });
+      // a loop starts once a third of its photo is on screen and stops when almost gone, so fewer decode at once
+      const big = e.boundingClientRect.height > innerHeight * 0.8;
+      if (e.isIntersecting && (e.intersectionRatio >= 0.35 || big)) { visible.add(v); start(v); }
+      else if (!e.isIntersecting || e.intersectionRatio < 0.12) { visible.delete(v); v.pause(); }
+    }), { threshold: [0, 0.12, 0.35] });
     // in the gallery only the picture in front moves; the ones behind stay still
     const flowVids = [], optVids = [];
     // in the planner only the chosen occasion and the one under the pointer move

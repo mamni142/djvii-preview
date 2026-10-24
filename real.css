@@ -864,3 +864,9 @@
 /* the slow gold animations repaint about 27 times a second instead of 60: the motion is too slow to tell the difference */
 .hero__portrait, .hero__side, .ticket__photo { animation-timing-function: steps(240) !important; }
 .hero__word { animation-timing-function: steps(210) !important; }
+
+/* direct email: a quiet line under the buttons */
+.send__note { min-height: 1.4em; margin-top: 14px; font-size: 14px; color: #d9bd8a; }
+.send__note.is-warn { color: #f0b48a; }
+[data-send-mail].is-busy { opacity: .7; pointer-events: none; }
+[data-send-mail].is-sent { border-color: transparent; background: linear-gradient(rgba(20,17,14,.6), rgba(20,17,14,.6)) padding-box, linear-gradient(120deg, #fff3d8, #a07a44 45%, #e9cf9c 75%, #8a6c40) border-box; color: #f6e2bb; }

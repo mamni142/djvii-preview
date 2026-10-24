@@ -543,7 +543,7 @@ const screen = (() => {
     guests.style.setProperty('--p', `${((g - 10) / 490) * 100}%`);
     const day = fmtDate(f.get('date')), time = f.get('time') || '';
     const speakers = f.get('speakers') === 'yes', consoleOn = f.get('console') === 'yes';
-    const crowd = (f.get('crowd') || '').trim(), who = (f.get('name') || '').trim();
+    const crowd = (f.get('crowd') || '').trim(), who = (f.get('name') || '').trim(), contact = (f.get('contact') || '').trim();
     const lesson = type === 'lesson';
 
     if (type !== lastType) {
@@ -573,6 +573,7 @@ const screen = (() => {
       lesson ? null : `Music: ${music.length ? music.join(', ') : 'open format'}`,
       lesson ? null : `Speakers on site: ${speakers ? 'yes' : 'no'} · DJ console on site: ${consoleOn ? 'yes' : 'no'}`,
       who ? `From: ${who}` : null,
+      contact ? `Reply to: ${contact}` : null,
     ].filter(Boolean).join('\n');
     ui.msg.textContent = text;
     ui.wa.href = `https://wa.me/971502375736?text=${encodeURIComponent(text)}`;
@@ -596,6 +597,36 @@ const screen = (() => {
   occ.addEventListener('pointerleave', () => { const c = $('input[name="type"]:checked', form); if (!c) return; showImg(T[c.value].img); setTag(tagFor(c)); });
   // choosing an occasion moves straight on to the music
   $$('input[name="type"]', form).forEach((r) => r.addEventListener('click', () => setTimeout(() => go(1, 1), 380)));
+
+  // "Send by email" delivers the request straight to her Gmail from the site (FormSubmit), no mail app needed
+  const note = $('[data-send-note]');
+  ui.mail.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const b = e.currentTarget, label = $('span', b), f = new FormData(form);
+    const contact = (f.get('contact') || '').trim();
+    if (!contact) {
+      note.textContent = 'Add your email or phone in step 6 so VII can answer you.';
+      note.className = 'send__note is-warn';
+      return;
+    }
+    if (b.classList.contains('is-busy')) return;
+    b.classList.add('is-busy'); label.textContent = 'Sending…'; note.textContent = ''; note.className = 'send__note';
+    const t = T[f.get('type') || 'yacht'];
+    const data = { _subject: `Booking request: ${t.title} (djvii.com)`, _template: 'box', _captcha: 'false', name: (f.get('name') || '').trim() || 'Not given', contact, message: text };
+    if (/@/.test(contact)) data._replyto = contact;
+    try {
+      const r = await fetch('https://formsubmit.co/ajax/Djviitoria@gmail.com', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json' }, body: JSON.stringify(data) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || String(j.success) === 'false') throw new Error(j.message || 'failed');
+      label.textContent = 'Sent to VII';
+      b.classList.add('is-sent');
+      note.textContent = 'Thank you. Your request is in her inbox, and VII usually answers the same day.';
+    } catch (err) {
+      label.textContent = 'Send by email';
+      note.textContent = 'Could not send from the page. Opening your email app instead.';
+      location.href = b.href;
+    } finally { b.classList.remove('is-busy'); }
+  });
 
   $('[data-copy]').addEventListener('click', async (e) => {
     const b = e.currentTarget, s = $('span', b);

@@ -465,7 +465,9 @@ const screen = (() => {
     index = clamp(i, 0, steps.length - 1);
     steps.forEach((s, k) => { s.classList.toggle('is-active', k === index); s.classList.toggle('is-back', k === index && dir < 0); });
     $$('i', dots).forEach((d, k) => { d.classList.toggle('is-on', k === index); d.classList.toggle('is-done', k < index); });
-    count.textContent = index === steps.length - 1 ? 'All set' : `Step ${index + 1} of ${steps.length}`;
+    const two = (n) => String(n).padStart(2, '0');
+    count.innerHTML = `<b>${two(index + 1)}</b><span>/ ${two(steps.length)}</span>`;
+    count.setAttribute('aria-label', `Step ${index + 1} of ${steps.length}`);
     progress.style.width = `${((index + 1) / steps.length) * 100}%`;
     back.disabled = index === 0;
     form.classList.toggle('is-last', index === steps.length - 1);
@@ -498,7 +500,29 @@ const screen = (() => {
   const fmtDate = (v) => (v ? new Date(v + 'T12:00:00').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }) : '');
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
-  const ui = { img: $('[data-t-img]'), title: $('[data-t-title]'), when: $('[data-t-when]'), arc: $('[data-t-arc]'), gear: $('[data-t-gear]'), like: $('[data-t-like]'), msg: $('[data-message]'), wa: $('[data-send-wa]'), mail: $('[data-send-mail]') };
+  const ui = { tag: $('[data-t-tag]'), img: $('[data-t-img]'), title: $('[data-t-title]'), when: $('[data-t-when]'), arc: $('[data-t-arc]'), gear: $('[data-t-gear]'), like: $('[data-t-like]'), msg: $('[data-message]'), wa: $('[data-send-wa]'), mail: $('[data-send-mail]') };
+  // pictures cross-fade: the old one stays on top as a ghost and dissolves while the new one settles
+  const fadeTo = (src) => {
+    if (ui.img.getAttribute('src') === src) return;
+    if (reduce) { ui.img.src = src; return; }
+    const box = ui.img.parentElement, old = box.querySelector('.ticket__ghost');
+    if (old) old.remove();
+    const ghost = ui.img.cloneNode();
+    ghost.removeAttribute('data-t-img'); ghost.className = 'ticket__ghost';
+    const vid = box.querySelector('.live-video.is-on');
+    if (vid && vid.readyState >= 2) {
+      try { const c = document.createElement('canvas'); c.width = vid.videoWidth; c.height = vid.videoHeight; c.getContext('2d').drawImage(vid, 0, 0); ghost.src = c.toDataURL('image/jpeg', 0.8); } catch (e) { /* keep the still */ }
+    }
+    box.insertBefore(ghost, ui.tag);
+    ui.img.src = src;
+    ghost.animate([{ opacity: 1, filter: 'blur(0)', transform: 'scale(1)' }, { opacity: 0, filter: 'blur(10px)', transform: 'scale(1.04)' }], { duration: 1100, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' }).onfinish = () => ghost.remove();
+    ui.img.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 1400, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  };
+  const setTag = (html) => {
+    if (!ui.tag || ui.tag.innerHTML === html) return;
+    ui.tag.innerHTML = html;
+    if (!reduce) ui.tag.animate([{ opacity: 0, transform: 'translate(-50%, 8px)', filter: 'blur(4px)' }, { opacity: 1, transform: 'translate(-50%, 0)', filter: 'blur(0)' }], { duration: 650, easing: 'cubic-bezier(.2,.7,.2,1)' });
+  };
   let text = '';
   function update() {
     const f = new FormData(form);
@@ -514,9 +538,11 @@ const screen = (() => {
     const lesson = type === 'lesson';
 
     if (type !== lastType) {
-      const swap = () => { ui.img.src = t.img; ui.img.classList.remove('is-swapping'); };
-      if (lastType && !reduce) { ui.img.classList.add('is-swapping'); setTimeout(swap, 300); } else swap();
+      if (lastType) fadeTo(t.img); else ui.img.src = t.img;
       ui.title.textContent = t.title; ui.like.textContent = t.like;
+      if (lastType && !reduce) [ui.title, ui.like].forEach((el) => el.animate([{ opacity: 0, filter: 'blur(6px)', transform: 'translateY(8px)' }, { opacity: 1, filter: 'blur(0)', transform: 'none' }], { duration: 700, easing: 'cubic-bezier(.2,.7,.2,1)' }));
+      const radios = $$('input[name="type"]', form), n = radios.findIndex((r) => r.value === type) + 1;
+      setTag(`<i>${String(n).padStart(2, '0')}</i>${esc(t.title)}`);
       lastType = type;
     }
     const people = lesson ? (g <= 10 ? 'private lesson' : `${g} students`) : `${g >= 500 ? '500+' : g} guests`;
@@ -553,6 +579,12 @@ const screen = (() => {
     if (e.target.name === 'type') defaults(e.target.value);
     update();
   });
+  // the arch previews an occasion while the pointer rests on it, and returns to the chosen one after
+  const occ = $('.opts--photo', form);
+  const showImg = fadeTo;
+  const tagFor = (input) => { const n = $$('input[name="type"]', form).indexOf(input) + 1; return `<i>${String(n).padStart(2, '0')}</i>${esc(T[input.value].title)}`; };
+  occ.addEventListener('pointerover', (e) => { const l = e.target.closest('label'); if (!l || e.pointerType !== 'mouse') return; showImg($('img', l).getAttribute('src')); setTag(tagFor($('input', l))); });
+  occ.addEventListener('pointerleave', () => { const c = $('input[name="type"]:checked', form); if (!c) return; showImg(T[c.value].img); setTag(tagFor(c)); });
   // choosing an occasion moves straight on to the music
   $$('input[name="type"]', form).forEach((r) => r.addEventListener('click', () => setTimeout(() => go(1, 1), 380)));
 

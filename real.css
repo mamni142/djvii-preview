@@ -611,3 +611,73 @@
   .opts--photo small { grid-area: 2 / 2; justify-self: start; text-align: left; font-size: 14px; }
   .opts--photo img { display: block; grid-area: 1 / 3 / 3 / 4; width: 38px; height: 48px; }
 }
+
+/* ===== watch: her set playing in the YouTube app on an iPhone ===== */
+.yt-stage { margin: clamp(48px, 6vw, 80px) auto 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: clamp(24px, 6vw, 110px); padding-inline: var(--pad); max-width: 1280px; perspective: 1800px; }
+.yt-note { display: grid; gap: 8px; text-align: center; }
+.yt-note--l { justify-self: end; }
+.yt-note--r { justify-self: start; }
+.yt-note b { font-family: var(--display); font-weight: 400; font-size: clamp(48px, 5vw, 76px); line-height: 1; font-variant-numeric: lining-nums;
+  background: linear-gradient(180deg, #fff3d8, #c9a46a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.yt-note span { font-size: 11px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(243,233,216,0.55); }
+.yt-note::before { content: ""; justify-self: center; width: 1px; height: 54px; margin-bottom: 8px; background: linear-gradient(180deg, rgba(246,223,179,0), rgba(246,223,179,0.6)); }
+.phone--yt { --w: clamp(300px, 26vw, 360px); --ry: 0deg; --rz: 0deg; }
+.phone--yt::after { content: ""; position: absolute; inset: 8% -30% -6%; z-index: -1; border-radius: 50%; background: radial-gradient(closest-side, rgba(230,197,144,0.18), transparent); filter: blur(10px); pointer-events: none; }
+.yt-cta { margin-top: clamp(36px, 4vw, 56px); }
+
+.yt { display: flex; flex-direction: column; background: #0f0f0f; font-family: Roboto, -apple-system, "SF Pro Text", "Segoe UI", Manrope, sans-serif; }
+.yt .ig__status { background: #0f0f0f; }
+.yt__player { position: relative; flex: none; aspect-ratio: 16 / 9; overflow: hidden; background: #000; cursor: pointer; }
+.yt .screen__media, .yt .screen__poster, .yt .screen__frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+.yt .screen__poster { object-fit: cover; transition: opacity 1.2s; }
+.yt .screen__frame { overflow: hidden; }
+.yt .screen__frame iframe { position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translate(-50%, -50%); border: 0; }
+.yt.is-bg .screen__frame { pointer-events: none; }
+.yt.is-bg .screen__frame iframe { width: 124%; height: 124%; }
+.yt.is-live .screen__poster { opacity: 0; }
+.yt .screen__play { position: absolute; left: 50%; top: 50%; z-index: 2; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 6px; padding: 0; border: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; transition: opacity .5s, transform .5s var(--ease); }
+.yt .screen__play svg { width: 3.2em; height: 3.2em; padding: 0.95em 0.85em 0.95em 1.05em; }
+.yt .screen__play span { padding: 0.25em 0.8em; border-radius: 999px; background: rgba(0,0,0,0.55); font-size: 0.72em; font-weight: 600; color: #fff; }
+@media (hover: hover) { .yt .screen__play:hover { transform: translate(-50%, -50%) scale(1.06); box-shadow: none; } }
+.yt.is-playing .screen__play { opacity: 0; pointer-events: none; }
+.yt__bar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; height: 3px; background: rgba(255,255,255,0.25); }
+.yt__bar::after { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #f00; }
+.yt.is-live .yt__bar::after { animation: ytProgress 60s linear infinite; }
+.yt.is-playing .yt__bar { display: none; }
+@keyframes ytProgress { to { width: 100%; } }
+
+.yt__body { flex: 1; min-height: 0; overflow: hidden; padding: 0.85em 0.9em 0; }
+.yt__title { font-family: inherit; font-size: 1.12em; font-weight: 700; line-height: 1.25; color: #f1f1f1; letter-spacing: 0; }
+.yt__meta { margin-top: 0.3em; font-size: 0.78em; color: #aaa; }
+.yt__channel { display: grid; grid-template-columns: 2.4em 1fr auto; align-items: center; gap: 0.7em; margin-top: 0.9em; color: #f1f1f1; }
+.yt__channel img { width: 2.4em; height: 2.4em; border-radius: 50%; object-fit: cover; }
+.yt__channel span { display: grid; line-height: 1.2; }
+.yt__channel b { font-size: 0.92em; }
+.yt__channel small { font-size: 0.72em; color: #aaa; }
+.yt__channel em { font-style: normal; padding: 0.55em 1em; border-radius: 999px; background: #f1f1f1; color: #0f0f0f; font-size: 0.8em; font-weight: 700; transition: background .3s; }
+@media (hover: hover) { .yt__channel:hover em { background: #fff; } }
+.yt__actions { display: flex; gap: 0.5em; margin-top: 0.9em; }
+.yt__actions span { display: inline-flex; align-items: center; gap: 0.4em; padding: 0.45em 0.9em; border-radius: 999px; background: #272727; font-size: 0.76em; font-weight: 600; color: #f1f1f1; }
+.yt__actions svg { width: 1.2em; height: 1.2em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.yt__next { margin-top: 1em; font-size: 0.92em; font-weight: 700; color: #f1f1f1; }
+.yt .reels { margin-top: 0.6em; display: grid; grid-template-columns: 1fr; gap: 0.7em; }
+.yt .reel { display: grid; grid-template-columns: 44% 1fr; gap: 0.7em; align-items: start; width: 100%; aspect-ratio: auto; border-radius: 0; overflow: visible; box-shadow: none; text-align: left; transform: none; background: none; }
+.yt .reel img { width: 100%; aspect-ratio: 16 / 9; height: auto; border-radius: 0.55em; filter: none; transform: none; transition: opacity .3s; }
+.yt .reel span { position: static; display: grid; gap: 0.25em; font-size: 1em; }
+.yt .reel b { font-size: 0.8em; font-weight: 600; line-height: 1.3; color: #f1f1f1; }
+.yt .reel small { font-size: 0.68em; color: #aaa; }
+.yt .reel.is-on { box-shadow: none; }
+.yt .reel.is-on img { box-shadow: 0 0 0 2px #e2bd84; }
+.yt .reel.is-on small::after { content: " · Now playing"; color: #e2c48f; }
+@media (hover: hover) { .yt .reel:hover { transform: none; } .yt .reel:hover img { opacity: 0.85; filter: none; transform: none; } }
+
+@media (max-width: 900px) {
+  .yt-stage { grid-template-columns: 1fr 1fr; grid-template-areas: "phone phone" "l r"; row-gap: 40px; }
+  .phone--yt { grid-area: phone; justify-self: center; --w: min(80vw, 330px); }
+  .yt-note--l { grid-area: l; justify-self: center; }
+  .yt-note--r { grid-area: r; justify-self: center; }
+  .yt-note::before { display: none; }
+  .yt-note b { font-size: 44px; }
+  .yt-note span { font-size: 9.5px; }
+}
+.yt.is-bg .screen__frame iframe { width: 136%; height: 136%; }

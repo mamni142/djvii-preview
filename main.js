@@ -427,7 +427,7 @@ const screen = (() => {
   // her music starts with the visitor's first tap or key (browsers do not allow sound before that)
   let soundOff = false; try { soundOff = sessionStorage.getItem('vii-sound') === 'off'; } catch (e) { /* private mode */ }
   const first = (e) => {
-    if (e.target.closest && e.target.closest('[data-mini], .player, .tt, .screen, .reels, .stories')) return stop();
+    if (e.target.closest && e.target.closest('[data-mini], .player, .tt, .screen, .yt, .reels, .stories')) return stop();
     stop(); gestured = true;
     if (!playing && !soundOff) play();
   };

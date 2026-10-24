@@ -8,7 +8,7 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const root = document.documentElement;
   // photos of her that have a living (video) version, made from the same frame
-  const LIVE = { 'hero-portrait.jpg': 'hero-loop', 'yacht-party.jpg': 'yacht-loop', 'sea-fu.jpg': 'seafu-loop', 'frank.jpg': 'frank-loop', 'anwa.jpg': 'anwa-loop', 'sls.jpg': 'sls-loop', 'sky-view.jpg': 'skyview-loop', 'boho-salon.jpg': 'boho-loop' };
+  const LIVE = { 'hero-portrait.jpg': 'hero-loop', 'yacht-party.jpg': 'yacht-loop', 'sea-fu.jpg': 'seafu-loop', 'frank.jpg': 'frank-loop', 'anwa.jpg': 'anwa-loop', 'sls.jpg': 'sls-loop', 'sky-view.jpg': 'skyview-loop', 'boho-salon.jpg': 'boho-loop', 'waldorf-yas.jpg': 'waldorf-loop', 'one-and-only.jpg': 'oneandonly-loop', 'vii-club.jpg': 'viiclub-loop', 'f1-abu-dhabi.jpg': 'f1-loop', 'bellagio.jpg': 'bellagio-loop', 'elfe-gallery.jpg': 'elfe-loop', 'rove-expo.jpg': 'roveexpo-loop', 'mysk.jpg': 'mysk-loop' };
   const quiet = reduce || (navigator.connection && navigator.connection.saveData);
   // H.264 is decoded by the graphics chip almost everywhere; VP9 often falls back to the processor
   const webm = !document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"');
@@ -215,7 +215,7 @@
   // ---------- living photos: wherever one of her animated photos appears, the loop fades in over it ----------
   (() => {
     if (quiet) return;
-    const pics = $$('img').filter((im) => liveSrc(im.getAttribute('src')) && !im.closest('.stories, .nav, .opts, .ticket, .stories__top'));
+    const pics = $$('img').filter((im) => liveSrc(im.getAttribute('src')) && !im.closest('.stories, .nav, .stories__top'));
     const start = (v) => {
       if (document.hidden) return;
       if (!v.src) v.src = v.dataset.src;
@@ -229,7 +229,20 @@
       if (e.isIntersecting) { visible.add(v); start(v); } else { visible.delete(v); v.pause(); }
     }), { rootMargin: '60px 0px', threshold: 0.15 });
     // in the gallery only the picture in front moves; the ones behind stay still
-    const flowVids = [];
+    const flowVids = [], optVids = [];
+    // in the planner only the chosen occasion and the one under the pointer move
+    const optSync = () => optVids.forEach((v) => {
+      const label = v.closest('label'), on = label.querySelector('input').checked || label.matches(':hover');
+      if (on && plannerOn) start(v); else v.pause();
+    });
+    let plannerOn = false;
+    const planner = $('[data-wizard]');
+    if (planner) {
+      new IntersectionObserver((en) => { plannerOn = en[0].isIntersecting; optSync(); }, { threshold: 0.1 }).observe(planner);
+      planner.addEventListener('change', optSync);
+      planner.addEventListener('pointerover', (e) => { if (e.target.closest('.opts--photo label')) optSync(); });
+      planner.addEventListener('pointerout', (e) => { if (e.target.closest('.opts--photo label')) setTimeout(optSync, 0); });
+    }
     addEventListener('flow:front', (e) => {
       const front = e.detail && e.detail._live;
       flowVids.forEach((v) => { if (v !== front) v.pause(); });
@@ -250,13 +263,24 @@
       v.className = 'live-video';
       v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none';
       v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
-      v.dataset.src = liveSrc(im.getAttribute('src'), !!im.closest('.hero__side, .about__avatar, .tt__label'));
+      v.dataset.src = liveSrc(im.getAttribute('src'), !!im.closest('.hero__side, .about__avatar, .tt__label, .opts'));
       v.style.objectPosition = getComputedStyle(im).objectPosition;
       v.addEventListener('playing', () => v.classList.add('is-on'), { once: true });
       im.after(v);
       im._live = v; v._live = v;
       im.parentElement._live = v;
-      if (im.closest('.flow__track')) flowVids.push(v); else io.observe(im.parentElement);
+      if (im.closest('.flow__track')) flowVids.push(v);
+      else if (im.closest('.opts')) optVids.push(v);
+      else io.observe(im.parentElement);
+      // the ticket swaps its picture with the chosen occasion: its loop follows
+      if (im.closest('.ticket')) new MutationObserver(() => {
+        const s = liveSrc(im.getAttribute('src'));
+        v.classList.remove('is-on'); v.pause();
+        if (!s) { v.removeAttribute('src'); v.dataset.src = ''; return; }
+        v.dataset.src = s; v.src = s;
+        v.addEventListener('playing', () => v.classList.add('is-on'), { once: true });
+        if (visible.has(v)) start(v);
+      }).observe(im, { attributes: true, attributeFilter: ['src'] });
     });
   })();
 

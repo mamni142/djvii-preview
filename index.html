@@ -242,7 +242,7 @@
   </div>
   <div class="container">
     <ul class="tiles">
-      <li data-up><a class="tile" href="#book" data-pick="yacht" data-tilt-card><img src="img/big-daddy-yacht.jpg" alt="" loading="lazy"><span class="tile__body"><b>Yachts</b><span>Marina to the Palm</span></span></a></li>
+      <li data-up><a class="tile" href="#book" data-pick="yacht" data-tilt-card><img src="img/yacht-party.jpg" alt="" loading="lazy"><span class="tile__body"><b>Yachts</b><span>Marina to the Palm</span></span></a></li>
       <li data-up><a class="tile" href="#book" data-pick="hotel" data-tilt-card><img src="img/sky-view.jpg" alt="" loading="lazy"><span class="tile__body"><b>Hotels &amp; pools</b><span>Pool days, brunch, launches</span></span></a></li>
       <li data-up><a class="tile" href="#book" data-pick="club" data-tilt-card><img src="img/sls.jpg" alt="" loading="lazy"><span class="tile__body"><b>Clubs &amp; lounges</b><span>Until late</span></span></a></li>
       <li data-up><a class="tile" href="#book" data-pick="corporate" data-tilt-card><img src="img/one-and-only.jpg" alt="" loading="lazy"><span class="tile__body"><b>Brands &amp; companies</b><span>Staff parties up to 300+</span></span></a></li>
@@ -336,7 +336,7 @@
           <fieldset class="step is-active" data-step>
             <legend class="step__q">What's the occasion?</legend>
             <div class="opts opts--photo">
-              <label><input type="radio" name="type" value="yacht" checked><span><img src="img/big-daddy-yacht.jpg" alt="" loading="lazy"><b>Yacht</b></span></label>
+              <label><input type="radio" name="type" value="yacht" checked><span><img src="img/yacht-party.jpg" alt="" loading="lazy"><b>Yacht</b></span></label>
               <label><input type="radio" name="type" value="hotel"><span><img src="img/sky-view.jpg" alt="" loading="lazy"><b>Hotel or pool</b></span></label>
               <label><input type="radio" name="type" value="club"><span><img src="img/vii-club.jpg" alt="" loading="lazy"><b>Club night</b></span></label>
               <label><input type="radio" name="type" value="corporate"><span><img src="img/one-and-only.jpg" alt="" loading="lazy"><b>Company party</b></span></label>
@@ -427,7 +427,7 @@
       </form>
 
       <aside class="ticket" aria-label="Your night">
-        <div class="ticket__photo"><img src="img/big-daddy-yacht.jpg" alt="" data-t-img></div>
+        <div class="ticket__photo"><img src="img/yacht-party.jpg" alt="" data-t-img></div>
         <div class="ticket__body">
           <span class="ticket__k">Your night</span>
           <h3 class="ticket__title" data-t-title>Yacht party</h3>
@@ -497,10 +497,21 @@
   </div>
 </div>
 
-<div class="mini" data-mini hidden>
-  <div class="mini__disc" aria-hidden="true"></div>
-  <span class="mini__t" data-mini-title>VII TORIA</span>
-  <button class="round" type="button" data-mini-toggle aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+<div class="mini" data-mini hidden role="region" aria-label="Music player">
+  <button class="mini__disc" type="button" data-mini-play aria-label="Play">
+    <img src="img/hero-portrait.jpg" alt="" data-mini-art>
+  </button>
+  <div class="mini__info">
+    <span class="mini__k" data-mini-k>Tap anywhere for music</span>
+    <span class="mini__t" data-mini-title>VII TORIA · Latest mixes</span>
+  </div>
+  <div class="mini__eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+  <div class="mini__ctrl">
+    <button type="button" data-mini-prev aria-label="Previous mix"><svg viewBox="0 0 24 24"><path d="M6 5v14M18 5 9 12l9 7z"/></svg></button>
+    <button type="button" class="mini__main" data-mini-play aria-label="Play"><svg class="i-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>
+    <button type="button" data-mini-next aria-label="Next mix"><svg viewBox="0 0 24 24"><path d="M18 5v14M6 5l9 7-9 7z"/></svg></button>
+  </div>
+  <div class="mini__bar" aria-hidden="true"><i data-mini-progress></i></div>
 </div>
 
 <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js" defer></script>

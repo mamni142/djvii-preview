@@ -283,7 +283,7 @@ const screen = (() => {
   const player = $('[data-player]'), embed = $('[data-pl-embed]');
   const titleEl = $('[data-pl-title]'), subEl = $('[data-pl-sub]'), prog = $('[data-pl-progress]');
   const posEl = $('[data-pl-pos]'), durEl = $('[data-pl-dur]'), labelImg = $('.tt__label img', deck);
-  const mini = $('[data-mini]'), miniTitle = $('[data-mini-title]');
+  const mini = $('[data-mini]'), miniTitle = $('[data-mini-title]'), miniK = $('[data-mini-k]'), miniArt = $('[data-mini-art]'), miniProg = $('[data-mini-progress]');
   const SC = 'https://soundcloud.com/victoria-graham-554728684';
   let widget = null, loading = null, playing = false, sounds = [], duration = 0, wantPlay = false;
 
@@ -325,7 +325,9 @@ const screen = (() => {
     deck.classList.toggle('is-playing', v); player.classList.toggle('is-playing', v);
     $('[data-pl-toggle]').setAttribute('aria-label', v ? 'Pause' : 'Play');
     $('[data-deck-start]').textContent = v ? 'Stop' : 'Start';
-    updateMini();
+    mini.classList.toggle('is-playing', v);
+    $$('[data-mini-play]').forEach((b) => b.setAttribute('aria-label', v ? 'Pause' : 'Play'));
+    miniK.textContent = v ? 'Now playing' : (widget ? 'Paused' : 'Tap anywhere for music');
   };
   const showSound = () => {
     if (!widget) return;
@@ -335,7 +337,7 @@ const screen = (() => {
       duration = s.duration || 0; durEl.textContent = duration ? fmt(duration) : '—';
       const i = sounds.findIndex((x) => x.id === s.id);
       subEl.textContent = sounds.length ? `Mix ${i + 1} of ${sounds.length} · ${s.playback_count ? s.playback_count.toLocaleString('en') + ' plays' : 'SoundCloud'}` : 'SoundCloud';
-      if (s.artwork_url) labelImg.src = s.artwork_url.replace('-large', '-t500x500');
+      if (s.artwork_url) { labelImg.src = s.artwork_url.replace('-large', '-t500x500'); miniArt.src = s.artwork_url; }
     });
   };
   const load = () => loading || (loading = new Promise((res) => {
@@ -349,7 +351,7 @@ const screen = (() => {
       widget.bind(E.PLAY, () => { setState(true); showSound(); screen.quiet(); });
       widget.bind(E.PAUSE, () => setState(false));
       widget.bind(E.FINISH, () => setState(false));
-      widget.bind(E.PLAY_PROGRESS, (p) => { prog.style.width = `${(p.relativePosition || 0) * 100}%`; posEl.textContent = fmt(p.currentPosition || 0); });
+      widget.bind(E.PLAY_PROGRESS, (p) => { prog.style.width = `${(p.relativePosition || 0) * 100}%`; miniProg.style.transform = `scaleX(${p.relativePosition || 0})`; posEl.textContent = fmt(p.currentPosition || 0); });
     };
     s.onerror = () => { embed.classList.add('is-visible'); res(); };
     document.head.append(s);
@@ -362,11 +364,16 @@ const screen = (() => {
     widget.play();
     setTimeout(() => { if (wantPlay && !playing) { embed.classList.add('is-visible'); subEl.textContent = 'Press play in the player below to start'; showSound(); } }, 3500);
   };
-  const toggle = () => { if (playing) { wantPlay = false; widget && widget.pause(); } else play(); };
+  const toggle = () => {
+    if (playing) { wantPlay = false; widget && widget.pause(); try { sessionStorage.setItem('vii-sound', 'off'); } catch (e) { /* private mode */ } }
+    else play();
+  };
+  const nextMix = async () => { await load(); if (!widget) return; widget.next(); if (!playing) widget.play(); setTimeout(showSound, 600); };
+  const prevMix = async () => { await load(); if (!widget) return; widget.prev(); if (!playing) widget.play(); setTimeout(showSound, 600); };
   $('[data-pl-toggle]').addEventListener('click', toggle);
   $('[data-deck-start]').addEventListener('click', toggle);
-  $('[data-pl-next]').addEventListener('click', async () => { await load(); widget && widget.next(); setTimeout(showSound, 600); });
-  $('[data-pl-prev]').addEventListener('click', async () => { await load(); widget && widget.prev(); setTimeout(showSound, 600); });
+  $('[data-pl-next]').addEventListener('click', nextMix);
+  $('[data-pl-prev]').addEventListener('click', prevMix);
   $('[data-pl-bar]').addEventListener('click', (e) => {
     if (!widget || !duration) return;
     const r = e.currentTarget.getBoundingClientRect();
@@ -374,11 +381,25 @@ const screen = (() => {
   });
   window.addEventListener('media:video', () => { if (playing && widget) widget.pause(); });
 
-  // a small player follows you down the page while a mix plays
-  let listenVisible = true;
-  new IntersectionObserver((en) => { listenVisible = en[0].isIntersecting; updateMini(); }).observe(player);
-  function updateMini() { mini.hidden = !(playing && !listenVisible); }
-  $('[data-mini-toggle]').addEventListener('click', toggle);
+  // a discreet bar that is always there: what is playing, pause, previous, next
+  $$('[data-mini-play]').forEach((b) => b.addEventListener('click', toggle));
+  $('[data-mini-prev]').addEventListener('click', prevMix);
+  $('[data-mini-next]').addEventListener('click', nextMix);
+  const showBar = () => { mini.hidden = false; void mini.offsetWidth; mini.classList.add('is-in'); };
+  // her music starts with the visitor's first tap or key (browsers do not allow sound before that)
+  let soundOff = false; try { soundOff = sessionStorage.getItem('vii-sound') === 'off'; } catch (e) { /* private mode */ }
+  const first = (e) => {
+    if (e.target.closest && e.target.closest('[data-mini], .player, .tt, .screen, .reels, .stories')) return stop();
+    stop();
+    if (!playing && !soundOff) play();
+  };
+  const stop = () => { removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); };
+  addEventListener('pointerdown', first, true);
+  addEventListener('keydown', first, true);
+  if (soundOff) miniK.textContent = 'Paused';
+  // the player loads quietly in the background so the first tap starts the music at once
+  setTimeout(showBar, document.documentElement.classList.contains('is-loading') ? 2300 : 1200);
+  addEventListener('load', () => setTimeout(load, 600));
 })();
 
 // ---------- plan your night: a seven-step planner that writes the message ----------
@@ -388,7 +409,7 @@ const screen = (() => {
   const back = $('[data-w-back]', form), next = $('[data-w-next]', form);
   const dots = $('[data-w-dots]', form), count = $('[data-w-count]', form), progress = $('[data-w-progress]', form);
   const T = {
-    yacht:     { title: 'Yacht party',       img: 'img/big-daddy-yacht.jpg', like: 'A night like Big Daddy Yacht',          music: ['Lounge house', 'Afrobeats', 'Amapiano', '80s to 2000s hits'] },
+    yacht:     { title: 'Yacht party',       img: 'img/yacht-party.jpg', like: 'A night like Big Daddy Yacht',          music: ['Lounge house', 'Afrobeats', 'Amapiano', '80s to 2000s hits'] },
     hotel:     { title: 'Hotel or pool day', img: 'img/sky-view.jpg',        like: 'A day like Address Sky View, pool side', music: ['Lounge house', 'R&B and hip-hop', 'House'] },
     club:      { title: 'Club night',        img: 'img/vii-club.jpg',        like: 'A night like VII, Conrad Dubai',         music: ['Club hits', 'Afrobeats', 'Amapiano', 'House'] },
     corporate: { title: 'Company party',     img: 'img/one-and-only.jpg',    like: 'A night like One&Only, 300 guests',      music: ['80s to 2000s hits', 'Club hits', 'Arabic', 'Afrobeats'] },

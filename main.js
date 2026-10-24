@@ -289,6 +289,12 @@ const screen = (() => {
   // the night opens with her RnB throwback mix
   const START = /rnb throwback/i;
   let startAt = -1;
+  // the music fades up over a few seconds instead of hitting at full volume
+  let fadeNext = false, fadeT = 0, gestured = false;
+  const fadeIn = () => {
+    let v = 0; widget.setVolume(0); clearInterval(fadeT);
+    fadeT = setInterval(() => { v = Math.min(100, v + 3); widget.setVolume(v); if (v >= 100) clearInterval(fadeT); }, 110);
+  };
 
   // record physics
   let angle = 0, vel = 0, drag = false, lastA = 0, lastT = 0, moved = 0, prev = performance.now();
@@ -347,7 +353,7 @@ const screen = (() => {
       titleEl.textContent = clean(s.title); setMiniTitle(clean(s.title));
       duration = s.duration || 0; durEl.textContent = duration ? fmt(duration) : '—';
       const i = sounds.findIndex((x) => x.id === s.id);
-      subEl.textContent = sounds.length ? `Mix ${i + 1} of ${sounds.length} · ${s.playback_count ? s.playback_count.toLocaleString('en') + ' plays' : 'SoundCloud'}` : 'SoundCloud';
+      subEl.textContent = i >= 0 && s.playback_count ? `${s.playback_count.toLocaleString('en')} plays on SoundCloud` : 'On SoundCloud';
       if (s.artwork_url) miniArt.src = s.artwork_url;
     });
   };
@@ -357,7 +363,7 @@ const screen = (() => {
     if (!s || miniTitle.dataset.started) return showSound();
     titleEl.textContent = clean(s.title); setMiniTitle(clean(s.title));
     duration = s.duration || 0; durEl.textContent = duration ? fmt(duration) : '—';
-    subEl.textContent = `Mix ${startAt + 1} of ${sounds.length} · ${s.playback_count ? s.playback_count.toLocaleString('en') + ' plays' : 'SoundCloud'}`;
+    subEl.textContent = s.playback_count ? `${s.playback_count.toLocaleString('en')} plays on SoundCloud` : 'On SoundCloud';
     if (s.artwork_url) miniArt.src = s.artwork_url;
   };
   const load = () => loading || (loading = new Promise((res) => {
@@ -367,31 +373,41 @@ const screen = (() => {
     s.onload = () => {
       widget = window.SC.Widget(embed.querySelector('iframe'));
       const E = window.SC.Widget.Events;
-      widget.bind(E.READY, () => { widget.getSounds((l) => { sounds = l || []; startAt = sounds.findIndex((x) => START.test(x.title || '')); showStart(); res(); }); });
-      widget.bind(E.PLAY, () => { setState(true); showSound(); screen.quiet(); });
-      widget.bind(E.PAUSE, () => setState(false));
+      widget.bind(E.READY, () => { widget.getSounds((l) => { sounds = l || []; startAt = sounds.findIndex((x) => START.test(x.title || '')); showStart(); res(); tryAuto(); }); });
+      widget.bind(E.PLAY, () => { if (fadeNext) { fadeNext = false; fadeIn(); } setState(true); showSound(); screen.quiet(); });
+      widget.bind(E.PAUSE, () => {
+        // a pause before any tap means the browser blocked the arrival start: wait for the first tap and fade in then
+        if (!gestured) { clearInterval(fadeT); widget.setVolume(0); fadeNext = true; delete miniTitle.dataset.started; }
+        setState(false);
+      });
       widget.bind(E.FINISH, () => setState(false));
       widget.bind(E.PLAY_PROGRESS, (p) => { prog.style.width = `${(p.relativePosition || 0) * 100}%`; miniProg.style.transform = `scaleX(${p.relativePosition || 0})`; posEl.textContent = fmt(p.currentPosition || 0); });
     };
     s.onerror = () => { embed.classList.add('is-visible'); res(); };
     document.head.append(s);
   }));
+  const start = () => {
+    if (!miniTitle.dataset.started) { fadeNext = true; widget.setVolume(0); }
+    if (!miniTitle.dataset.started && startAt > 0) widget.skip(startAt); else widget.play();
+  };
+  // try to start on arrival; browsers that block sound before a tap start it on the first tap instead
+  const tryAuto = () => { if (!soundOff && !playing && !miniTitle.dataset.started) start(); };
   const play = async () => {
     wantPlay = true;
-    titleEl.textContent = 'Loading her mixes…';
-    await load();
+    if (!widget) { titleEl.textContent = 'Loading her mixes…'; await load(); }
     if (!widget) return;
-    if (!miniTitle.dataset.started && startAt > 0) widget.skip(startAt); else widget.play();
+    start();
     setTimeout(() => { if (wantPlay && !playing) { embed.classList.add('is-visible'); subEl.textContent = 'Press play in the player below to start'; showSound(); } }, 3500);
   };
   const toggle = () => {
+    gestured = true;
     if (playing) { wantPlay = false; widget && widget.pause(); try { sessionStorage.setItem('vii-sound', 'off'); } catch (e) { /* private mode */ } }
     else play();
   };
   // before anything has played, next and previous step from the opening mix
   const fresh = () => !miniTitle.dataset.started && startAt > 0;
-  const nextMix = async () => { await load(); if (!widget) return; if (fresh()) widget.skip(startAt + 1); else { widget.next(); if (!playing) widget.play(); } setTimeout(showSound, 600); };
-  const prevMix = async () => { await load(); if (!widget) return; if (fresh()) widget.skip(startAt - 1); else { widget.prev(); if (!playing) widget.play(); } setTimeout(showSound, 600); };
+  const nextMix = async () => { gestured = true; await load(); if (!widget) return; if (fresh()) widget.skip(startAt + 1); else { widget.next(); if (!playing) widget.play(); } setTimeout(showSound, 600); };
+  const prevMix = async () => { gestured = true; await load(); if (!widget) return; if (fresh()) widget.skip(startAt - 1); else { widget.prev(); if (!playing) widget.play(); } setTimeout(showSound, 600); };
   $('[data-pl-toggle]').addEventListener('click', toggle);
   $('[data-deck-start]').addEventListener('click', toggle);
   $('[data-pl-next]').addEventListener('click', nextMix);
@@ -412,7 +428,7 @@ const screen = (() => {
   let soundOff = false; try { soundOff = sessionStorage.getItem('vii-sound') === 'off'; } catch (e) { /* private mode */ }
   const first = (e) => {
     if (e.target.closest && e.target.closest('[data-mini], .player, .tt, .screen, .reels, .stories')) return stop();
-    stop();
+    stop(); gestured = true;
     if (!playing && !soundOff) play();
   };
   const stop = () => { removeEventListener('pointerdown', first, true); removeEventListener('keydown', first, true); };
@@ -421,7 +437,7 @@ const screen = (() => {
   if (soundOff) miniK.textContent = 'Press play';
   // the player loads quietly in the background so the first tap starts the music at once
   setTimeout(showBar, document.documentElement.classList.contains('is-loading') ? 2300 : 1200);
-  addEventListener('load', () => setTimeout(load, 600));
+  load();
 })();
 
 // ---------- plan your night: a seven-step planner that writes the message ----------

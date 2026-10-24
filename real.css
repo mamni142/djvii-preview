@@ -749,3 +749,42 @@
   .yt-reels .reel small { font-size: 9px; }
 }
 @media (max-width: 720px) { .yt-reels .reel small { font-size: 0; } .yt-reels .reel.is-on small::before { content: "Now playing"; font-size: 9px; } }
+
+/* a larger portrait; the side photos keep their distance from it */
+.hero__portrait { width: clamp(300px, 28vw, 460px); }
+.hero__side--l { left: calc(50% - clamp(300px, 28vw, 460px) / 2 - var(--w) - clamp(30px, 5vw, 90px)); }
+.hero__side--r { right: calc(50% - clamp(300px, 28vw, 460px) / 2 - var(--w) - clamp(30px, 5vw, 90px)); }
+@media (max-width: 720px) { .hero__portrait { width: min(70vw, 330px); } .hero__side--l { left: 2vw; } .hero__side--r { right: 2vw; } }
+
+/* YouTube full-screen controls, as the app draws them */
+.yt__bottom { gap: 1em; padding: 9% 5.5% 4% 7%; }
+.yt__time { font-family: Roboto, -apple-system, "Segoe UI", sans-serif; font-size: 0.82em; font-weight: 500; color: #fff; font-variant-numeric: tabular-nums; min-width: 2.6em; }
+.yt__bottom .yt__bar { position: relative; flex: 1; height: 3px; border-radius: 3px; overflow: visible; background: rgba(255,255,255,0.3); }
+.yt__bottom .yt__bar::after { content: none; }
+.yt__bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 3%; border-radius: 3px; background: #f00; transition: width 1s linear; }
+.yt__bar i::after { content: ""; position: absolute; right: -0.45em; top: 50%; width: 0.9em; height: 0.9em; margin-top: -0.45em; border-radius: 50%; background: #f00; }
+.yt__icons { display: inline-flex; gap: 1.1em; }
+.yt__icons svg { width: 1.35em; height: 1.35em; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.yt__top { gap: 1.1em; padding: 4% 0 9%; left: 7%; right: 5.5%; }
+.yt__ico { flex: none; width: 1.45em; height: 1.45em; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
+.yt__head { flex: 1; min-width: 0; display: grid; line-height: 1.25; }
+.yt__head b { font-family: Roboto, -apple-system, "Segoe UI", sans-serif; font-size: 1.12em; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+.yt__head small { font-family: Roboto, -apple-system, "Segoe UI", sans-serif; font-size: 0.78em; color: rgba(255,255,255,0.72); }
+.yt__tag { display: none; }
+.yt__tools { display: inline-flex; align-items: center; gap: 1.2em; }
+.yt__auto { position: relative; width: 2.3em; height: 0.95em; border-radius: 999px; background: rgba(255,255,255,0.55); }
+.yt__auto i { position: absolute; right: -0.15em; top: 50%; width: 1.3em; height: 1.3em; margin-top: -0.65em; border-radius: 50%; background: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 7v10l8-5z' fill='%23111'/%3E%3C/svg%3E"); background-size: 70%; background-position: 60% 50%; background-repeat: no-repeat; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+
+/* long mix names never push the deck off a phone screen */
+.console > *, .player { min-width: 0; }
+.player__title, .mini__t { overflow-wrap: anywhere; }
+@media (max-width: 720px) { .yt--full.is-bg .screen__frame iframe { width: 128%; height: 160%; } }
+
+/* hero clears the menu: the portrait sizes to the screen height too, and the stage grows with it */
+.hero { --pw: clamp(300px, 29vw, 480px); padding-top: clamp(118px, 14svh, 150px); }
+.hero__stage { height: auto; min-height: 0; }
+.hero__portrait { width: var(--pw); }
+.hero__side--l { left: calc(50% - var(--pw) / 2 - var(--w) - clamp(30px, 5vw, 90px)); }
+.hero__side--r { right: calc(50% - var(--pw) / 2 - var(--w) - clamp(30px, 5vw, 90px)); }
+@media (max-width: 720px) { .hero { --pw: min(70vw, 330px); padding-top: 92px; } .hero__side--l { left: 2vw; } .hero__side--r { right: 2vw; } }

@@ -353,6 +353,20 @@
     show(0);
   })();
 
+  // ---------- the YouTube phone: the clock runs from where the silent preview starts ----------
+  (() => {
+    const yt = $('.yt--full'), out = $('[data-yt-time]'), bar = $('.yt__bar i');
+    if (!yt || !out) return;
+    let t = 90;
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+    new MutationObserver(() => { if (!yt.classList.contains('is-live')) t = 90; }).observe(yt, { attributes: true, attributeFilter: ['class'] });
+    setInterval(() => {
+      if (!yt.classList.contains('is-live') || yt.classList.contains('is-playing') || document.hidden) return;
+      t += 1; out.textContent = fmt(t);
+      if (bar) bar.style.width = `${Math.min(96, 3 + (t - 90) / 12)}%`;
+    }, 1000);
+  })();
+
   // ---------- the names band speeds up with the scroll ----------
   (() => {
     const track = $('.marquee__track');

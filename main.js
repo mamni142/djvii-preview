@@ -328,7 +328,7 @@ const screen = (() => {
   new IntersectionObserver((en, io) => { if (en[0].isIntersecting) { if (!playing) vel = 520; spinUp(); io.disconnect(); } }, { threshold: 0.5 }).observe(deck);
 
   const fmt = (ms) => { const s = Math.floor(ms / 1000); const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = String(s % 60).padStart(2, '0'); return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${m}:${x}`; };
-  const clean = (t) => (t || '').replace(/^\s*DJ\s*VII\s*TORIA\s*[-–|:]\s*/i, '').replace(/Lastest/g, 'Latest').replace(/\s*\|\s*/g, ' · ').trim();
+  const clean = (t) => (t || '').replace(/^\s*DJ\s*VII\s*TORIA\s*[-–|:]\s*/i, '').replace(/Lastest/g, 'Latest').replace(/\s*\|\s*/g, ' · ').replace(/\s*,\s*/g, ', ').replace(/\s{2,}/g, ' ').trim();
   // the bar's title rolls like a ticker when it does not fit
   const setMiniTitle = (txt) => {
     if (miniTitle.dataset.t === txt) return;

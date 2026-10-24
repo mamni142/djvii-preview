@@ -286,6 +286,9 @@ const screen = (() => {
   const mini = $('[data-mini]'), miniTitle = $('[data-mini-title]'), miniK = $('[data-mini-k]'), miniArt = $('[data-mini-art]'), miniProg = $('[data-mini-progress]');
   const SC = 'https://soundcloud.com/victoria-graham-554728684';
   let widget = null, loading = null, playing = false, sounds = [], duration = 0, wantPlay = false;
+  // the night opens with her RnB throwback mix
+  const START = /rnb throwback/i;
+  let startAt = -1;
 
   // record physics
   let angle = 0, vel = 0, drag = false, lastA = 0, lastT = 0, moved = 0, prev = performance.now();
@@ -348,6 +351,15 @@ const screen = (() => {
       if (s.artwork_url) miniArt.src = s.artwork_url;
     });
   };
+  // before the first play, show the opening mix instead of the newest upload
+  const showStart = () => {
+    const s = sounds[startAt];
+    if (!s || miniTitle.dataset.started) return showSound();
+    titleEl.textContent = clean(s.title); setMiniTitle(clean(s.title));
+    duration = s.duration || 0; durEl.textContent = duration ? fmt(duration) : '—';
+    subEl.textContent = `Mix ${startAt + 1} of ${sounds.length} · ${s.playback_count ? s.playback_count.toLocaleString('en') + ' plays' : 'SoundCloud'}`;
+    if (s.artwork_url) miniArt.src = s.artwork_url;
+  };
   const load = () => loading || (loading = new Promise((res) => {
     embed.innerHTML = `<iframe title="VII TORIA on SoundCloud" allow="autoplay" src="https://w.soundcloud.com/player/?url=${encodeURIComponent(SC)}&color=%23e6c590&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false&visual=false"></iframe>`;
     const s = document.createElement('script');
@@ -355,7 +367,7 @@ const screen = (() => {
     s.onload = () => {
       widget = window.SC.Widget(embed.querySelector('iframe'));
       const E = window.SC.Widget.Events;
-      widget.bind(E.READY, () => { widget.getSounds((l) => { sounds = l || []; showSound(); }); res(); });
+      widget.bind(E.READY, () => { widget.getSounds((l) => { sounds = l || []; startAt = sounds.findIndex((x) => START.test(x.title || '')); showStart(); res(); }); });
       widget.bind(E.PLAY, () => { setState(true); showSound(); screen.quiet(); });
       widget.bind(E.PAUSE, () => setState(false));
       widget.bind(E.FINISH, () => setState(false));
@@ -369,15 +381,17 @@ const screen = (() => {
     titleEl.textContent = 'Loading her mixes…';
     await load();
     if (!widget) return;
-    widget.play();
+    if (!miniTitle.dataset.started && startAt > 0) widget.skip(startAt); else widget.play();
     setTimeout(() => { if (wantPlay && !playing) { embed.classList.add('is-visible'); subEl.textContent = 'Press play in the player below to start'; showSound(); } }, 3500);
   };
   const toggle = () => {
     if (playing) { wantPlay = false; widget && widget.pause(); try { sessionStorage.setItem('vii-sound', 'off'); } catch (e) { /* private mode */ } }
     else play();
   };
-  const nextMix = async () => { await load(); if (!widget) return; widget.next(); if (!playing) widget.play(); setTimeout(showSound, 600); };
-  const prevMix = async () => { await load(); if (!widget) return; widget.prev(); if (!playing) widget.play(); setTimeout(showSound, 600); };
+  // before anything has played, next and previous step from the opening mix
+  const fresh = () => !miniTitle.dataset.started && startAt > 0;
+  const nextMix = async () => { await load(); if (!widget) return; if (fresh()) widget.skip(startAt + 1); else { widget.next(); if (!playing) widget.play(); } setTimeout(showSound, 600); };
+  const prevMix = async () => { await load(); if (!widget) return; if (fresh()) widget.skip(startAt - 1); else { widget.prev(); if (!playing) widget.play(); } setTimeout(showSound, 600); };
   $('[data-pl-toggle]').addEventListener('click', toggle);
   $('[data-deck-start]').addEventListener('click', toggle);
   $('[data-pl-next]').addEventListener('click', nextMix);

@@ -8,7 +8,7 @@
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const root = document.documentElement;
   // photos of her that have a living (video) version, made from the same frame
-  const LIVE = { 'hero-portrait.jpg': 'hero-loop', 'yacht-party.jpg': 'yacht-loop', 'sea-fu.jpg': 'seafu-loop', 'frank.jpg': 'frank-loop', 'anwa.jpg': 'anwa-loop', 'sls.jpg': 'sls-loop', 'sky-view.jpg': 'skyview-loop', 'boho-salon.jpg': 'boho-loop', 'waldorf-yas.jpg': 'waldorf-loop', 'one-and-only.jpg': 'oneandonly-loop', 'vii-club.jpg': 'viiclub-loop', 'f1-abu-dhabi.jpg': 'f1-loop', 'bellagio.jpg': 'bellagio-loop', 'elfe-gallery.jpg': 'elfe-loop', 'rove-expo.jpg': 'roveexpo-loop', 'mysk.jpg': 'mysk-loop' };
+  const LIVE = { 'hero-portrait.jpg': 'hero-loop', 'hero-set.jpg': 'heroset-loop', 'yacht-party.jpg': 'yacht-loop', 'sea-fu.jpg': 'seafu-loop', 'frank.jpg': 'frank-loop', 'anwa.jpg': 'anwa-loop', 'sls.jpg': 'sls-loop', 'sky-view.jpg': 'skyview-loop', 'boho-salon.jpg': 'boho-loop', 'waldorf-yas.jpg': 'waldorf-loop', 'one-and-only.jpg': 'oneandonly-loop', 'vii-club.jpg': 'viiclub-loop', 'f1-abu-dhabi.jpg': 'f1-loop', 'bellagio.jpg': 'bellagio-loop', 'elfe-gallery.jpg': 'elfe-loop', 'rove-expo.jpg': 'roveexpo-loop', 'mysk.jpg': 'mysk-loop' };
   const quiet = reduce || (navigator.connection && navigator.connection.saveData);
   // H.264 is decoded by the graphics chip almost everywhere; VP9 often falls back to the processor
   const webm = !document.createElement('video').canPlayType('video/mp4; codecs="avc1.640028"');
@@ -40,7 +40,9 @@
   });
 
   // ---------- a gold cursor that names what you can do ----------
-  if (fine && !reduce) {
+  // the gold cursor is switched off: visitors keep their normal pointer (set true to bring it back)
+  const GOLD_CURSOR = false;
+  if (GOLD_CURSOR && fine && !reduce) {
     const cur = $('[data-cursor]'), ring = $('.cursor__ring', cur), dot = $('.cursor__dot', cur), label = $('[data-cursor-label]', cur);
     root.classList.add('has-cursor');
     let x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y;

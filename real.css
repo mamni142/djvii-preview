@@ -272,3 +272,85 @@
   .phone--r { --ry: -8deg; --rz: 3deg; z-index: 2; margin-top: 8vw; }
 }
 @media (max-width: 720px) { .insta { overflow-x: clip; } html, body { overflow-x: clip; } }
+
+/* glass buttons: smoked pill with a gold hairline, icon in a lacquered disc with a brushed gold bezel */
+.btn--glass { color: #f3e9d8; border: 1px solid transparent;
+  background: linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.01)) padding-box, linear-gradient(#14110e, #14110e) padding-box,
+    linear-gradient(120deg, rgba(246,223,179,0.55), rgba(246,223,179,0.08) 35%, rgba(246,223,179,0.08) 65%, rgba(246,223,179,0.4)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 14px 30px -16px rgba(0,0,0,0.9); }
+.btn--glass .btn__icon, .btn--glass .btn__play { color: #ead2a4;
+  background: radial-gradient(70% 55% at 50% 18%, rgba(255,255,255,0.10), rgba(255,255,255,0) 70%) padding-box, radial-gradient(circle at 50% 60%, #1d1915, #0b0a08 80%) padding-box,
+    conic-gradient(from 200deg, #6e5634, #e9cf9c, #fff3d8, #c9a46a, #5e4729, #b8935b, #f3dcae, #8a6c40, #6e5634) border-box;
+  border: 2px solid transparent; box-shadow: inset 0 -6px 10px -4px rgba(0,0,0,0.8), 0 4px 10px -4px rgba(0,0,0,0.8); }
+.btn--glass .btn__play svg { width: 15px; height: 15px; margin-left: 2px; stroke: currentColor; stroke-width: 1.2; stroke-linejoin: round; }
+@media (hover: hover) {
+  .btn--glass:hover { color: #fff; border-color: transparent;
+    background: linear-gradient(180deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02)) padding-box, linear-gradient(#18140f, #18140f) padding-box,
+      linear-gradient(120deg, rgba(246,223,179,0.85), rgba(246,223,179,0.2) 35%, rgba(246,223,179,0.2) 65%, rgba(246,223,179,0.7)) border-box;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 5px rgba(230,197,144,0.06), 0 18px 36px -16px rgba(230,197,144,0.35); }
+  .btn--glass:hover .btn__icon, .btn--glass:hover .btn__play { color: #fff0d2; }
+}
+
+/* hero stats: three equal cells in a gold-edged smoked pill, lining figures */
+.hero__stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: min(100%, 560px); border: 1px solid transparent; border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01)) padding-box, linear-gradient(#110f0c, #110f0c) padding-box,
+    linear-gradient(120deg, rgba(246,223,179,0.5), rgba(246,223,179,0.07) 35%, rgba(246,223,179,0.07) 65%, rgba(246,223,179,0.4)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 18px 40px -22px rgba(0,0,0,0.9); }
+.hero__stats li { display: grid; gap: 4px; align-content: center; padding: 14px 10px; }
+.hero__stats li + li { border-left: 0; background: linear-gradient(rgba(246,223,179,0.18), rgba(246,223,179,0.18)) left center / 1px 56% no-repeat; }
+.hero__stats b { display: block; font-family: var(--display); font-weight: 500; font-size: 30px; line-height: 1; letter-spacing: 0.01em; font-variant-numeric: lining-nums tabular-nums; font-feature-settings: "lnum" 1;
+  background: linear-gradient(180deg, #fff3d8, #e2bd84 60%, #b08850); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero__stats b span { font-size: inherit; color: inherit; }
+.hero__stats b i { font-style: normal; font-size: 0.55em; vertical-align: 0.7em; margin-left: 1px; }
+.hero__stats li > span { font-size: 10.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(243,233,216,0.6); line-height: 1.35; }
+@media (max-width: 720px) {
+  .hero__stats { width: 100%; max-width: 360px; }
+  .hero__stats li { padding: 12px 6px; }
+  .hero__stats b { font-size: 24px; }
+  .hero__stats b span { font-size: inherit; }
+  .hero__stats li > span { font-size: 8.5px; letter-spacing: 0.12em; }
+}
+
+/* frames still draw where the angle cannot animate */
+.hero__portrait, .hero__side { --spin: 0deg; }
+.hero__stats b i { font-size: 0.62em; vertical-align: 0.62em; opacity: 0.9; }
+
+/* gold button: polished champagne pill, icon in a lacquered disc with a gold bezel */
+.btn--gold { color: #1a140c; border: 1px solid transparent;
+  background: linear-gradient(180deg, rgba(255,255,255,0.45), rgba(255,255,255,0) 48%) padding-box,
+    linear-gradient(100deg, #f6e3bd 0%, #e7c890 35%, #d3ab6c 65%, #e9cd96 100%) padding-box,
+    linear-gradient(120deg, #fff6e0, #a07a44 40%, #f3dcae 70%, #8a6c40) border-box;
+  box-shadow: inset 0 -3px 6px rgba(110,75,30,0.35), 0 1px 0 rgba(255,255,255,0.06), 0 16px 34px -16px rgba(230,197,144,0.7); }
+.btn--gold .btn__icon { color: #f0d9aa; border: 2px solid transparent;
+  background: radial-gradient(70% 55% at 50% 18%, rgba(255,255,255,0.12), rgba(255,255,255,0) 70%) padding-box, radial-gradient(circle at 50% 60%, #221c16, #0b0a08 80%) padding-box,
+    conic-gradient(from 200deg, #8a6c40, #fff3d8, #c9a46a, #6e5634, #f3dcae, #a8854f, #8a6c40) border-box;
+  box-shadow: inset 0 -6px 10px -4px rgba(0,0,0,0.85), 0 3px 8px -3px rgba(60,40,10,0.7); }
+.btn--gold .btn__icon svg { width: 17px; height: 17px; stroke-width: 1.8; }
+@media (hover: hover) {
+  .btn--gold:hover { box-shadow: inset 0 -3px 6px rgba(110,75,30,0.35), 0 0 0 5px rgba(230,197,144,0.1), 0 20px 42px -14px rgba(230,197,144,0.85); }
+  .btn--gold:hover .btn__icon, .btn--glass:hover .btn__icon { transform: none; }
+  .btn--gold:hover .btn__icon svg { transform: translateX(3px); }
+  .btn__icon svg { transition: transform .45s var(--ease); }
+}
+
+/* booking badge: smoked glass, gold hairline, champagne pulse */
+.hero__live { gap: 10px; padding: 9px 16px 9px 13px; border: 1px solid transparent; color: #f3e6cf; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; white-space: nowrap;
+  background: linear-gradient(rgba(12,10,8,0.78), rgba(12,10,8,0.78)) padding-box, linear-gradient(120deg, rgba(246,223,179,0.7), rgba(246,223,179,0.12) 40%, rgba(246,223,179,0.12) 60%, rgba(246,223,179,0.6)) border-box;
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 10px 24px -12px rgba(0,0,0,0.9); }
+.hero__live i { position: relative; width: 7px; height: 7px; background: radial-gradient(circle at 35% 35%, #fff6e0, #e2bd84 60%, #a8814a); box-shadow: 0 0 8px 1px rgba(246,223,179,0.7); animation: none; }
+.hero__live i::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 1px solid rgba(246,223,179,0.7); animation: livePing 2.4s ease-out infinite; }
+@keyframes livePing { from { transform: scale(.5); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+@media (max-width: 720px) { .hero__live { font-size: 9.5px; padding: 8px 13px 8px 11px; } }
+@media (prefers-reduced-motion: reduce) { .hero__live i::after { animation: none; } }
+
+/* play with sound: smoked glass on the video, same lacquer-and-bezel disc */
+.screen__play { color: #f3e9d8; border: 1px solid transparent; padding: 7px 28px 7px 7px; letter-spacing: 0.01em;
+  background: linear-gradient(rgba(14,12,10,0.62), rgba(14,12,10,0.62)) padding-box,
+    linear-gradient(120deg, rgba(246,223,179,0.8), rgba(246,223,179,0.15) 40%, rgba(246,223,179,0.15) 60%, rgba(246,223,179,0.65)) border-box;
+  -webkit-backdrop-filter: blur(10px) saturate(1.2); backdrop-filter: blur(10px) saturate(1.2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 18px 40px -16px rgba(0,0,0,0.9); }
+.screen__play svg { width: 54px; height: 54px; padding: 17px 15px 17px 19px; fill: #ead2a4; stroke: #ead2a4; stroke-width: 1.2; stroke-linejoin: round; border: 2px solid transparent;
+  background: radial-gradient(70% 55% at 50% 18%, rgba(255,255,255,0.12), rgba(255,255,255,0) 70%) padding-box, radial-gradient(circle at 50% 60%, #221c16, #0b0a08 80%) padding-box,
+    conic-gradient(from 200deg, #8a6c40, #fff3d8, #c9a46a, #6e5634, #f3dcae, #a8854f, #8a6c40) border-box;
+  box-shadow: inset 0 -6px 10px -4px rgba(0,0,0,0.85); }
+@media (hover: hover) { .screen__play:hover { transform: scale(1.04); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 0 0 6px rgba(230,197,144,0.08), 0 20px 44px -16px rgba(230,197,144,0.4); } }

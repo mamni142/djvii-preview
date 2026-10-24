@@ -215,7 +215,7 @@
   // ---------- living photos: wherever one of her animated photos appears, the loop fades in over it ----------
   (() => {
     if (quiet) return;
-    const pics = $$('img').filter((im) => liveSrc(im.getAttribute('src')) && !im.closest('.stories, .nav, .stories__top, .insta'));
+    const pics = $$('img').filter((im) => liveSrc(im.getAttribute('src')) && !im.closest('.stories, .nav, .stories__top, .insta, .mini'));
     const start = (v) => {
       if (document.hidden) return;
       if (!v.src) v.src = v.dataset.src;

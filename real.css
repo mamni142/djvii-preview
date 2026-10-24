@@ -788,3 +788,14 @@
 .hero__side--l { left: calc(50% - var(--pw) / 2 - var(--w) - clamp(30px, 5vw, 90px)); }
 .hero__side--r { right: calc(50% - var(--pw) / 2 - var(--w) - clamp(30px, 5vw, 90px)); }
 @media (max-width: 720px) { .hero { --pw: min(70vw, 330px); padding-top: 92px; } .hero__side--l { left: 2vw; } .hero__side--r { right: 2vw; } }
+/* the real YouTube mark, and top and bottom rows set the same distance from the glass */
+.yt__brand { display: inline-flex; align-items: center; gap: 0.18em; margin-right: 0.4em; }
+.yt__brand svg { width: 1.75em; height: auto; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)); }
+.yt__brand b { font-family: "YouTube Sans", "Roboto Condensed", Roboto, "Arial Narrow", Arial, sans-serif; font-size: 1.08em; font-weight: 700; letter-spacing: -0.045em; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.45); }
+.yt__top { padding: 3.6% 0 9%; align-items: center; }
+.yt__bottom { padding: 9% 5.5% 3.6% 7%; }
+.hero { --pw: clamp(320px, 32vw, 520px); }
+.yt__top > .yt__tools { display: inline-flex; align-items: center; }
+.yt__top > .yt__head { display: grid; }
+@media (max-width: 720px) { .hero { --pw: min(72vw, 340px); } }
+.yt__top { padding-top: 2.5%; }

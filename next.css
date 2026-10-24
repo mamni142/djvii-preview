@@ -236,3 +236,11 @@
 
 .mini__k { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .mini { width: min(400px, calc(100vw - 36px)); }
+
+/* side photos wear the same turning gold frame as the portrait */
+.hero__side { border: 3px solid transparent; background: linear-gradient(#0b0a09, #0b0a09) padding-box, conic-gradient(from var(--spin), #7a5a2e, #f6e2bb 12%, #b8925a 25%, #5c431f 40%, #e6c590 55%, #fff4dc 62%, #a07a44 75%, #6b4f27 88%, #7a5a2e) border-box; animation: ring 9s linear infinite; box-shadow: 0 0 0 1px rgba(246,226,187,0.16), 0 0 36px -8px rgba(230,197,144,0.3), 0 40px 90px -30px rgba(0,0,0,0.95); }
+.hero__side--l { animation-delay: -3s; }
+.hero__side--r { animation-delay: -6s; animation-direction: reverse; }
+.hero__side img, .hero__side .live-video { border-radius: calc(var(--r-lg) - 3px); }
+.hero.is-off .hero__side { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .hero__side { animation: none; } }

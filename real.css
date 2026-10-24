@@ -898,3 +898,15 @@
 @keyframes heartBeat { 0%, 100% { scale: 1; } 12% { scale: 1.18; } 24% { scale: 1; } 36% { scale: 1.12; } 48% { scale: 1; } }
 @media (max-width: 720px) { .sign { padding-bottom: 120px; } }
 @media (prefers-reduced-motion: reduce) { .sign__heart { opacity: 1; scale: 1; } .sign.is-signed .sign__heart { animation: none; } }
+/* signature, rendered: a travelling gold sheen, a warm breathing glow, a pen spark */
+.sign__svg { filter: drop-shadow(0 0 0 rgba(246,223,179,0)); }
+.sign.is-signed .sign__svg { animation: signGlow2 5s ease-in-out 3.6s infinite; filter: drop-shadow(0 0 4px rgba(255,236,196,0.55)) drop-shadow(0 0 16px rgba(230,197,144,0.3)); }
+@keyframes signGlow2 {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(255,236,196,0.5)) drop-shadow(0 0 14px rgba(230,197,144,0.22)); }
+  50% { filter: drop-shadow(0 0 7px rgba(255,240,205,0.85)) drop-shadow(0 0 26px rgba(230,197,144,0.45)); }
+}
+.sign__spark { opacity: 0; mix-blend-mode: screen; }
+.sign.is-signed .sign__spark { animation: sparkLife 1.4s ease 2.6s forwards; }
+@keyframes sparkLife { 0% { opacity: 0; } 12% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+.sign__by { text-shadow: 0 0 10px rgba(230,197,144,0.35); }
+@media (prefers-reduced-motion: reduce) { .sign.is-signed .sign__svg { animation: none; } .sign__spark { display: none; } }

@@ -391,7 +391,13 @@
   (() => {
     const s = $('[data-sign]');
     if (!s) return;
-    new IntersectionObserver((en, io) => { if (en[0].isIntersecting) { s.classList.add('is-signed'); io.disconnect(); } }, { threshold: 0.6 }).observe(s);
+    // the pen spark runs along the swash as it is drawn
+    const spark = $('[data-sign-spark]', s);
+    new IntersectionObserver((en, io) => {
+      if (!en[0].isIntersecting) return;
+      s.classList.add('is-signed'); io.disconnect();
+      if (spark && spark.beginElement && !reduce) setTimeout(() => spark.beginElement(), 2600);
+    }, { threshold: 0.6 }).observe(s);
   })();
 
   // ---------- the names band speeds up with the scroll ----------

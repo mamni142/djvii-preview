@@ -857,3 +857,6 @@
 @media (prefers-reduced-motion: reduce) { .ytc__scroll { animation: none; } }
 .ytc__list .reel > span { position: relative; left: auto; right: auto; bottom: auto; font-size: 1em; font-weight: inherit; }
 .ytc__list .reel > .ytc__thumb { display: block; }
+
+/* sections out of view hold their animations still */
+.is-away *, .is-away *::before, .is-away *::after { animation-play-state: paused !important; }

@@ -44,9 +44,15 @@
     const cur = $('[data-cursor]'), ring = $('.cursor__ring', cur), dot = $('.cursor__dot', cur), label = $('[data-cursor-label]', cur);
     root.classList.add('has-cursor');
     let x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y;
-    addEventListener('pointermove', (e) => { cur.style.opacity = '1'; x = e.clientX; y = e.clientY; dot.style.transform = `translate3d(${x}px, ${y}px, 0)`; }, { passive: true });
-    const tick = () => { rx = lerp(rx, x, 0.18); ry = lerp(ry, y, 0.18); ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`; requestAnimationFrame(tick); };
-    tick();
+    // the ring trails the dot and rests once it has caught up
+    let trailing = false;
+    const tick = () => {
+      rx = lerp(rx, x, 0.18); ry = lerp(ry, y, 0.18); ring.style.transform = `translate3d(${rx}px, ${ry}px, 0)`;
+      if (Math.abs(x - rx) + Math.abs(y - ry) > 0.3) requestAnimationFrame(tick); else trailing = false;
+    };
+    const trail = () => { if (!trailing) { trailing = true; requestAnimationFrame(tick); } };
+    addEventListener('pointermove', (e) => { cur.style.opacity = '1'; x = e.clientX; y = e.clientY; dot.style.transform = `translate3d(${x}px, ${y}px, 0)`; trail(); }, { passive: true });
+    trail();
     document.addEventListener('pointerover', (e) => {
       const named = e.target.closest('[data-cursor]:not(.cursor)');
       const link = e.target.closest('a, button, label, [role="button"], input[type="range"]');
@@ -131,7 +137,10 @@
     size(); update();
     addEventListener('resize', () => { size(); update(); });
     addEventListener('load', () => { size(); update(); });
-    const queue = () => { if (!ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; update(); }); } };
+    // only does work while the lookbook is near the screen
+    let near = true;
+    const queue = () => { if (near && !ticking) { ticking = true; requestAnimationFrame(() => { ticking = false; update(); }); } };
+    new IntersectionObserver((en) => { near = en[0].isIntersecting; if (near) queue(); }, { rootMargin: '300px 0px' }).observe(sec);
     addEventListener('scroll', queue, { passive: true });
     track.addEventListener('scroll', queue, { passive: true });
   })();
@@ -367,18 +376,28 @@
     }, 1000);
   })();
 
+  // ---------- sections out of view hold their animations still (they pick up again when seen) ----------
+  (() => {
+    const io = new IntersectionObserver((en) => en.forEach((e) => e.target.classList.toggle('is-away', !e.isIntersecting)), { rootMargin: '150px 0px' });
+    $$('section, footer').filter((s) => !s.parentElement.closest('section')).forEach((s) => io.observe(s));
+  })();
+
   // ---------- the names band speeds up with the scroll ----------
   (() => {
     const track = $('.marquee__track');
     if (!track || reduce || !track.getAnimations) return;
-    let lastY = scrollY, rate = 1;
+    // runs only while the band is on screen and the speed is still changing
+    let lastY = scrollY, rate = 1, seen = false, looping = false;
     const tick = () => {
       const anim = track.getAnimations()[0];
       const v = Math.abs(scrollY - lastY); lastY = scrollY;
       rate = lerp(rate, 1 + Math.min(v / 6, 6), 0.08);
       if (anim) anim.playbackRate = rate;
-      requestAnimationFrame(tick);
+      if (seen && (v > 0 || Math.abs(rate - 1) > 0.01)) requestAnimationFrame(tick);
+      else { looping = false; if (anim && Math.abs(rate - 1) <= 0.01) anim.playbackRate = rate = 1; }
     };
-    tick();
+    const go = () => { if (seen && !looping) { looping = true; lastY = scrollY; requestAnimationFrame(tick); } };
+    new IntersectionObserver((en) => { seen = en[0].isIntersecting; go(); }).observe(track);
+    addEventListener('scroll', go, { passive: true });
   })();
 })();

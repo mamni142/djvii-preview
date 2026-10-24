@@ -56,16 +56,19 @@ document.addEventListener('click', (e) => {
 // ---------- nav ----------
 (() => {
   const nav = $('[data-nav]');
-  let last = scrollY;
-  const onScroll = () => {
+  let last = scrollY, queued = false;
+  const check = () => {
+    queued = false;
     const y = scrollY;
     nav.classList.toggle('is-solid', y > 30);
     if (y > 700 && y > last + 4) nav.classList.add('is-hidden');
     else if (y < last - 4 || y < 700) nav.classList.remove('is-hidden');
     last = y;
   };
+  // read the scroll position once per frame, not on every scroll event
+  const onScroll = () => { if (!queued) { queued = true; requestAnimationFrame(check); } };
   addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  check();
   // highlight the section in view
   const links = $$('.nav__links a');
   const io = new IntersectionObserver((entries) => {
@@ -92,9 +95,15 @@ document.addEventListener('click', (e) => {
   const glow = $('[data-glow]');
   if (reduce || !fine) { glow.style.display = 'none'; return; }
   let tx = innerWidth / 2, ty = innerHeight * 0.3, x = tx, y = ty;
-  addEventListener('pointermove', (e) => { tx = e.clientX; ty = e.clientY; }, { passive: true });
-  const tick = () => { x = lerp(x, tx, 0.08); y = lerp(y, ty, 0.08); glow.style.transform = `translate3d(${x}px, ${y}px, 0)`; requestAnimationFrame(tick); };
-  tick();
+  // the glow eases after the pointer and rests once it has arrived
+  let moving = false;
+  const tick = () => {
+    x = lerp(x, tx, 0.08); y = lerp(y, ty, 0.08); glow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    if (Math.abs(tx - x) + Math.abs(ty - y) > 0.5) requestAnimationFrame(tick); else moving = false;
+  };
+  const wakeGlow = () => { if (!moving) { moving = true; requestAnimationFrame(tick); } };
+  addEventListener('pointermove', (e) => { tx = e.clientX; ty = e.clientY; wakeGlow(); }, { passive: true });
+  wakeGlow();
   $$('[data-magnetic]').forEach((b) => {
     b.addEventListener('pointermove', (e) => {
       const r = b.getBoundingClientRect();

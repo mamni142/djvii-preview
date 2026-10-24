@@ -314,6 +314,45 @@
     }
   })();
 
+  // ---------- kind words: one quote at a time, turns by itself, arrows, dots and swipe ----------
+  (() => {
+    const sec = $('[data-words]');
+    if (!sec) return;
+    const quotes = $$('.quote', sec), dots = $('[data-words-dots]', sec), track = $('[data-words-track]', sec);
+    if (!quotes.length) return;
+    const STAY = 7000;
+    let i = 0, timer = 0, inView = false, held = false;
+    sec.style.setProperty('--words-t', `${STAY}ms`);
+    dots.innerHTML = quotes.map((_, k) => `<button type="button" aria-label="Quote ${k + 1}"></button>`).join('');
+    const marks = $$('button', dots);
+    const show = (n) => {
+      i = (n + quotes.length) % quotes.length;
+      quotes.forEach((q, k) => q.classList.toggle('is-on', k === i));
+      marks.forEach((m, k) => { m.classList.remove('is-on'); if (k === i) { void m.offsetWidth; m.classList.add('is-on'); } });
+      plan();
+    };
+    const plan = () => {
+      clearTimeout(timer);
+      const run = inView && !held && !reduce && quotes.length > 1;
+      sec.classList.toggle('is-paused', !run);
+      if (run) timer = setTimeout(() => show(i + 1), STAY);
+    };
+    $('[data-words-prev]', sec).addEventListener('click', () => show(i - 1));
+    $('[data-words-next]', sec).addEventListener('click', () => show(i + 1));
+    marks.forEach((m, k) => m.addEventListener('click', () => show(k)));
+    // pause while someone is reading or hovering
+    sec.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { held = true; plan(); } });
+    sec.addEventListener('pointerleave', () => { held = false; plan(); });
+    sec.addEventListener('focusin', () => { held = true; plan(); });
+    sec.addEventListener('focusout', () => { held = false; plan(); });
+    sec.addEventListener('keydown', (e) => { if (e.key === 'ArrowLeft') show(i - 1); if (e.key === 'ArrowRight') show(i + 1); });
+    let x0 = null;
+    track.addEventListener('pointerdown', (e) => { x0 = e.clientX; });
+    track.addEventListener('pointerup', (e) => { if (x0 === null) return; const d = e.clientX - x0; x0 = null; if (Math.abs(d) > 40) show(d < 0 ? i + 1 : i - 1); });
+    new IntersectionObserver((en) => { inView = en[0].isIntersecting; plan(); }, { threshold: 0.35 }).observe(sec);
+    show(0);
+  })();
+
   // ---------- the names band speeds up with the scroll ----------
   (() => {
     const track = $('.marquee__track');

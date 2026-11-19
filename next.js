@@ -400,6 +400,96 @@
     }, { threshold: 0.6 }).observe(s);
   })();
 
+  // ---------- latest nights: choose a night, clips play quietly in view, tap for the big view with sound ----------
+  (() => {
+    const sec = $('[data-latest]');
+    if (!sec) return;
+    const track = $('[data-lt-track]', sec), tabs = $$('[data-lt-tab]', sec), items = $$('[data-lt-ch]', sec);
+    const prevB = $('[data-lt-prev]', sec), nextB = $('[data-lt-next]', sec);
+    let ch = tabs[0].dataset.ltTab, inView = false, queued = false;
+    const shown = () => items.filter((li) => li.dataset.ltCh === ch);
+    // only the two clips nearest the middle of the strip play, so the page stays light
+    const sync = () => {
+      queued = false;
+      const r = track.getBoundingClientRect(), mid = r.left + r.width / 2;
+      const vids = shown().map((li) => li.querySelector('video')).filter(Boolean);
+      const seen = vids.filter((v) => { const b = v.parentElement.getBoundingClientRect(); return inView && b.right > r.left + 20 && b.left < r.right - 20; })
+        .sort((a, b) => Math.abs(a.parentElement.getBoundingClientRect().left + 130 - mid) - Math.abs(b.parentElement.getBoundingClientRect().left + 130 - mid));
+      const keep = new Set(quiet || document.hidden ? [] : seen.slice(0, 2));
+      items.forEach((li) => { const v = li.querySelector('video'); if (v && !keep.has(v)) v.pause(); });
+      keep.forEach((v) => {
+        if (!v.src) { v.src = v.parentElement.dataset.ltVideo; v.addEventListener('playing', () => v.classList.add('is-on'), { once: true }); }
+        v.play().catch(() => {});
+      });
+      prevB.disabled = track.scrollLeft < 8;
+      nextB.disabled = track.scrollLeft + track.clientWidth > track.scrollWidth - 8;
+    };
+    const queue = () => { if (!queued) { queued = true; requestAnimationFrame(sync); } };
+    new IntersectionObserver((en) => { inView = en[0].isIntersecting; queue(); }, { threshold: 0.25 }).observe(track);
+    track.addEventListener('scroll', queue, { passive: true });
+    addEventListener('resize', queue);
+    document.addEventListener('visibilitychange', queue);
+    const step = (d) => track.scrollBy({ left: d * Math.max(260, track.clientWidth * 0.7), behavior: reduce ? 'auto' : 'smooth' });
+    prevB.addEventListener('click', () => step(-1));
+    nextB.addEventListener('click', () => step(1));
+    tabs.forEach((t) => t.addEventListener('click', () => {
+      if (t.dataset.ltTab === ch) return;
+      ch = t.dataset.ltTab;
+      tabs.forEach((x) => { const on = x === t; x.classList.toggle('is-on', on); x.setAttribute('aria-pressed', on); });
+      items.forEach((li, i) => { const on = li.dataset.ltCh === ch; li.hidden = !on; if (on) li.style.animationDelay = `${Math.min(i, 8) * 45}ms`; });
+      track.scrollLeft = 0;
+      queue();
+    }));
+
+    // the big view
+    const box = $('[data-ltbox]');
+    document.body.append(box); // outside main, so it sits above the music bar
+    const img = $('[data-ltbox-img]', box), vid = $('[data-ltbox-vid]', box), count = $('[data-ltbox-count]', box);
+    let list = [], at = 0, back = null;
+    const show = (n) => {
+      at = (n + list.length) % list.length;
+      const b = list[at].querySelector('.lt__card');
+      vid.pause();
+      if (b.dataset.ltVideo) {
+        img.hidden = true; vid.hidden = false; vid.poster = b.querySelector('img').src; vid.src = b.dataset.ltVideo; vid.muted = false;
+        window.dispatchEvent(new CustomEvent('media:video'));
+        vid.play().catch(() => {});
+      } else {
+        vid.hidden = true; vid.removeAttribute('src'); vid.load(); img.hidden = false; img.src = b.dataset.ltPhoto; img.alt = b.querySelector('img').alt;
+      }
+      [img, vid].forEach((el) => { el.style.animation = 'none'; void el.offsetWidth; el.style.animation = ''; });
+      count.textContent = `${at + 1} / ${list.length}`;
+    };
+    const open = (li) => {
+      list = shown(); back = document.activeElement;
+      box.hidden = false; document.documentElement.style.overflow = 'hidden';
+      const s = smooth(); if (s) s.stop();
+      show(list.indexOf(li)); $('[data-ltbox-close]', box).focus();
+      queue();
+    };
+    const close = () => {
+      vid.pause(); vid.removeAttribute('src'); vid.load();
+      box.hidden = true; document.documentElement.style.overflow = '';
+      const s = smooth(); if (s) s.start();
+      if (back) back.focus();
+      queue();
+    };
+    items.forEach((li) => li.querySelector('.lt__card').addEventListener('click', () => open(li)));
+    $('[data-ltbox-close]', box).addEventListener('click', close);
+    $('[data-ltbox-prev]', box).addEventListener('click', () => show(at - 1));
+    $('[data-ltbox-next]', box).addEventListener('click', () => show(at + 1));
+    box.addEventListener('click', (e) => { if (e.target === box || e.target.matches('[data-ltbox-stage]')) close(); });
+    addEventListener('keydown', (e) => {
+      if (box.hidden) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') show(at - 1);
+      if (e.key === 'ArrowRight') show(at + 1);
+    });
+    let x0 = null;
+    box.addEventListener('pointerdown', (e) => { if (!e.target.closest('video')) x0 = e.clientX; });
+    box.addEventListener('pointerup', (e) => { if (x0 === null) return; const d = e.clientX - x0; x0 = null; if (Math.abs(d) > 50) show(d < 0 ? at + 1 : at - 1); });
+  })();
+
   // ---------- the names band speeds up with the scroll ----------
   (() => {
     const track = $('.marquee__track');

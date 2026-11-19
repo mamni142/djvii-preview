@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.djvii.com/</loc><changefreq>monthly</changefreq></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.djvii.com/</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>weekly</changefreq>
+    <image:image><image:loc>https://www.djvii.com/img/og.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/hero-set.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/yacht-party.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/sea-fu.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/vii-club.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/latest/boss-sunset.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/latest/villa-headphones.jpg</image:loc></image:image>
+    <image:image><image:loc>https://www.djvii.com/img/latest/studio-headphones.jpg</image:loc></image:image>
+  </url>
 </urlset>
